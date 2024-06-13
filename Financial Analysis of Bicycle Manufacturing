@@ -1,4 +1,4 @@
--- Calc Quantity of items, Sales value & Order quantity by each Subcategory in L12M
+-- Calculate Quantity of items, Sales value & Order quantity by each Subcategory in Last 12 Months
 (find out The lastest date, and then get data in last 12 months) --
 select 
     FORMAT_DATETIME('%h %Y', a.ModifiedDate) as period
@@ -14,7 +14,7 @@ where date(ModifiedDate) >= (
 group by 1,2
 order by 1 DESC, 2 ASC;
 
--- Calc % YoY growth rate by SubCategory & release top 3 cat with highest grow rate. Can use metric: quantity_item. Round results to 2 decimal --
+-- Calculate % YoY growth rate by SubCategory & release top 3 cat with highest grow rate --
 with raw_data as
         (SELECT
             format_datetime('%Y',ModifiedDate) year
@@ -42,7 +42,7 @@ group by subcategory, order_quantity, next_order
 order by growth_rate DESC
 limit 3;
 
--- Ranking Top 3 TeritoryID with biggest Order quantity of every year. If there's TerritoryID with same quantity in a year, do not skip the rank number --
+-- Ranking Top 3 TeritoryID with biggest Order quantity of every year. When TerritoryID have same quantity in a year then i use dense_rank to not skip the rank number --
 with raw_data as (
     SELECT 
         format_datetime('%Y' ,a.ModifiedDate) year
@@ -63,7 +63,7 @@ from (
 where ranking <= 3
 order by year DESC, ranking;
 
--- Calc Total Discount Cost belongs to Seasonal Discount for each SubCategory --
+-- Calculate Total Discount Cost belongs to Seasonal Discount for each SubCategory --
 with filter_data as
         (select 
             format_datetime('%Y', a.ModifiedDate) year
@@ -124,7 +124,7 @@ from all_join
 group by 1,2
 order by 1,2 ;
 
--- Trend of Stock level & MoM diff % by all product in 2011. If %gr rate is null then 0. Round to 1 decimal --
+-- Trend of Stock level & MoM diff % by all product in 2011. If %gr_rate is null then i turn it into 0 --
 with raw_data as
    ( select 
         Name
@@ -151,7 +151,7 @@ select *
              else 0 end as gr_rate
 from filter_data
 
--- Calc Ratio of Stock / Sales in 2011 by product name, by month. Order results by month desc, ratio desc. Round Ratio to 1 decimal --
+-- Calculate Ratio of Stock / Sales in 2011 by product name, by month. Order results by month desc, ratio desc --
 with 
     sale_info as (
   select 
